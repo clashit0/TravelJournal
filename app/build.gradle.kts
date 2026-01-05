@@ -40,7 +40,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 kotlin {
@@ -82,4 +82,12 @@ dependencies {
     //Lifecycle and viewmodel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+
+
+
+    // Jetpack Compose integration
+    implementation("androidx.navigation:navigation-compose:2.9.6")
+
+
+
 }

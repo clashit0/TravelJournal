@@ -28,7 +28,7 @@ class JournalViewmodel(
         }
     }
 
-    fun insertJournal(title: String, description: String) {
+    fun insertJournal(title: String, description: String,journalId: Int? = null) {
         viewModelScope.launch {
             when (
                 val result = repository.insertJournal(
@@ -49,6 +49,26 @@ class JournalViewmodel(
                 }
 
                 ResultState.Loading -> Unit
+            }
+        }
+    }
+
+    fun getJournalById(id: Int): JournalEntity?{
+        return when(val state = state.value){
+            is ResultState.Success ->{
+                state.data.find { it.id == id }
+            }
+            else -> null
+        }
+    }
+
+    fun deleteJournal(journal: JournalEntity){
+        viewModelScope.launch {
+            when(val result = repository.deleteJournal(journal)){
+                is ResultState.Error ->{
+                    _state.value = ResultState.Error(result.message)
+                }
+                else -> null
             }
         }
     }

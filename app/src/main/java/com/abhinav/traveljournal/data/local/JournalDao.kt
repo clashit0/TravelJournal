@@ -1,6 +1,7 @@
 package com.abhinav.traveljournal.data.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -14,4 +15,7 @@ interface JournalDao{
 
     @Query("SELECT * FROM journal_table ORDER BY createdAt DESC")
     fun getAllJournals(): Flow<List<JournalEntity>>
+
+    @Delete
+    suspend fun deleteJournal(journal: JournalEntity)
 }

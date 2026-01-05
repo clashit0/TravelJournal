@@ -29,4 +29,13 @@ class JournalRepositoryImplementation(private val journalDao : JournalDao) : Jou
 
         }
     }
+
+    override suspend fun deleteJournal(journal: JournalEntity): ResultState<Unit> {
+        return try {
+            journalDao.deleteJournal(journal)
+            ResultState.Success(Unit)
+        }catch (e: Exception){
+            ResultState.Error(e.message?: "Delete failed")
+        }
+    }
 }

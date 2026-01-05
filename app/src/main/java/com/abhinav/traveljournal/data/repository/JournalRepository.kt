@@ -8,4 +8,6 @@ interface JournalRepository {
     suspend fun insertJournal(journal: JournalEntity): ResultState<JournalEntity>
 
     fun getAllJournals(): Flow<ResultState<List<JournalEntity>>>
+
+    suspend fun deleteJournal(journal: JournalEntity): ResultState<Unit>
 }

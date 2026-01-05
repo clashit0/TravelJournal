@@ -26,10 +26,15 @@ import com.abhinav.traveljournal.presentation.JournalViewmodel
 @Composable
 fun AddJournalScreen(
     viewmodel: JournalViewmodel,
+    journalId: Int? = null,
     onSaved: () -> Unit
 ){
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+
+    val existingJournal = journalId?.let {
+        viewmodel.getJournalById(it)
+    }
 
     Scaffold(
         topBar = {
@@ -62,7 +67,7 @@ fun AddJournalScreen(
 
             Button(
                 onClick = {
-                    viewmodel.insertJournal(title,description)
+                    viewmodel.insertJournal(title,description,existingJournal?.id)
                     onSaved()
                 },
                 modifier = Modifier.fillMaxWidth(),
