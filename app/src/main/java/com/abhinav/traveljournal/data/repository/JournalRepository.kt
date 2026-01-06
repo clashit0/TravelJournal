@@ -10,4 +10,6 @@ interface JournalRepository {
     fun getAllJournals(): Flow<ResultState<List<JournalEntity>>>
 
     suspend fun deleteJournal(journal: JournalEntity): ResultState<Unit>
+
+    suspend fun getJournalById(id: Int): ResultState<JournalEntity>
 }

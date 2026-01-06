@@ -38,4 +38,20 @@ class JournalRepositoryImplementation(private val journalDao : JournalDao) : Jou
             ResultState.Error(e.message?: "Delete failed")
         }
     }
+
+    override suspend fun getJournalById(id: Int): ResultState<JournalEntity> {
+        return try {
+            val journal = journalDao.getJournalById(id)
+
+            if(journal != null){
+                ResultState.Success(journal)
+            }else{
+                ResultState.Error("Journal not found")
+            }
+
+        }catch (e: Exception){
+            ResultState.Error(e.message?: "Get failed")
+
+        }
+    }
 }

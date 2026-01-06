@@ -9,6 +9,13 @@ data class JournalEntity(
     val id:Int =0,
     val title:String,
     val content:String,
-    val createdAt: Long
+    val createdAt: Long,
+
+    val imageUri:String? = null,
+    val audioUri:String? = null,
+
+    //location
+    val latitude: Double? = null,
+    val longitude: Double? = null
 
 )

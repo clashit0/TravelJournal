@@ -1,19 +1,29 @@
 package com.abhinav.traveljournal.presentation.screens
 
+import android.media.MediaPlayer
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.abhinav.traveljournal.presentation.JournalViewmodel
 import java.util.Date
 
@@ -54,6 +64,38 @@ fun JournalDetailScreen(
                     text = journal.content,
                     style = MaterialTheme.typography.bodyLarge
                 )
+
+
+
+                journal.imageUri?.let {
+                    Image(
+                        painter = rememberAsyncImagePainter(Uri.parse(it)),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth()
+                            .height(240.dp)
+                    )
+                }
+
+                journal.audioUri?.let { path->
+                    val context = LocalContext.current
+                    val player = remember { MediaPlayer() }
+
+                    Button(onClick = {
+                        player.reset()
+                        player.setDataSource(path)
+                        player.prepare()
+                        player.start()
+                    }) {
+                        Text("Play Audio")
+                    }
+                }
+
+                if (journal.latitude != null && journal.longitude != null){
+                    Text(
+                        text = "Location: ${journal.latitude}, ${journal.longitude}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
 
                 Text(
                     text = "Created at: ${Date(journal.createdAt)}",

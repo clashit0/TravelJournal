@@ -87,7 +87,7 @@ fun HomeScreen(
                                 onJournalClick(id)
                             },
                             onEdit ={journal->
-                                onAddClick()
+                                onEdit(journal)
                             },
                             onDelete = {journal->
                                 viewmodel.deleteJournal(journal)

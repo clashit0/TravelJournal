@@ -1,9 +1,11 @@
 package com.abhinav.traveljournal.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.abhinav.traveljournal.presentation.JournalViewmodel
 import com.abhinav.traveljournal.presentation.screens.AddJournalScreen
 import com.abhinav.traveljournal.presentation.screens.HomeScreen
@@ -34,14 +36,29 @@ fun AppNavGraph(
             )
         }
 
-        composable(Routes.ADD_JOURNAL) {
+        composable(
+            route = "${Routes.ADD_JOURNAL}?id={id}",
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = -1
+                }
+            )
+        ) { backStackEntry ->
+
+            val journalId = backStackEntry.arguments
+                ?.getInt("id")
+                ?.takeIf { it != -1 }
+
             AddJournalScreen(
                 viewmodel = viewmodel,
+                journalId = journalId,
                 onSaved = {
                     navController.popBackStack()
                 }
             )
         }
+
         composable(route = "${Routes.DETAIL}/{journalId}") {backStackEntry ->
             val journalId = backStackEntry.arguments?.getString("journalId")?.toInt()?:return@composable
 

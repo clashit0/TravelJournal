@@ -88,6 +88,18 @@ dependencies {
     // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:2.9.6")
 
+    //coil
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    //Icons
+    implementation("androidx.compose.ui:ui:1.10.0")
+    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.10.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+
+    //google Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
 
 
 }
