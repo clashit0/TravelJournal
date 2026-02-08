@@ -1,5 +1,7 @@
 package com.abhinav.traveljournal.presentation.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,6 +13,7 @@ import com.abhinav.traveljournal.presentation.screens.AddJournalScreen
 import com.abhinav.traveljournal.presentation.screens.HomeScreen
 import com.abhinav.traveljournal.presentation.screens.JournalDetailScreen
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun AppNavGraph(
     viewmodel: JournalViewmodel

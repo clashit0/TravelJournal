@@ -4,9 +4,11 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -15,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import okhttp3.Address
 
 @Composable
 fun AddEditContent(
@@ -23,7 +24,7 @@ fun AddEditContent(
     onTitleChange: (String) -> Unit,
     description: String,
     onDescriptionChange: (String) -> Unit,
-    imageUri: Uri?,
+    imageUri: List<Uri>,
     onPickImage: () -> Unit,
     isRecording: Boolean,
     onRecordClick: () -> Unit,
@@ -33,7 +34,7 @@ fun AddEditContent(
     onSave: () -> Unit,
     audioPath: String?,
     isEdit: Boolean
-){
+) {
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -46,8 +47,6 @@ fun AddEditContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-
-
         OutlinedTextField(
             value = description,
             onValueChange = onDescriptionChange,
@@ -55,33 +54,49 @@ fun AddEditContent(
             modifier = Modifier.fillMaxWidth()
         )
 
+
         Button(onClick = onPickImage) {
-            Text("Add Photo")
-        }
-        imageUri?.let {
-            Image(
-                painter = rememberAsyncImagePainter(it),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            )
+            Text("Add Photos")
         }
 
-        Button(onClick = onRecordClick) {
-            Text(if (isRecording) "Stop Recording" else "Start Recording")
-            if (isEdit && audioPath != null && !isRecording) {
-                Text(
-                    text = "🎤 Audio recording attached",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+        if (imageUri.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(imageUri) { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(120.dp)
+                            .aspectRatio(1f)
+                    )
+                }
             }
         }
 
-        Button(onClick = onLocationClick) {
-            Text(if (latitude != null && longitude != null) "Location Saved" else "Add Location")
+
+        Button(onClick = onRecordClick) {
+            Text(if (isRecording) "Stop Recording" else "Start Recording")
         }
+
+        if (isEdit && audioPath != null && !isRecording) {
+            Text(
+                text = "🎤 Audio recording attached",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+
+        Button(onClick = onLocationClick) {
+            Text(
+                if (latitude != null && longitude != null)
+                    "Location Saved"
+                else
+                    "Add Location"
+            )
+        }
+
 
         Button(onClick = onSave) {
             Text(if (isEdit) "Update Journal" else "Save Journal")

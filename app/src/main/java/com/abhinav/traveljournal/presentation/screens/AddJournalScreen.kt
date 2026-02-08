@@ -3,29 +3,17 @@ package com.abhinav.traveljournal.presentation.screens
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.MicOff
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,8 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import com.abhinav.traveljournal.common.AddEditContent
 import com.abhinav.traveljournal.common.AudioRecorder
 import com.abhinav.traveljournal.common.LocationProvider
@@ -48,6 +34,7 @@ import com.abhinav.traveljournal.common.ResultState
 import com.abhinav.traveljournal.data.local.JournalEntity
 import com.abhinav.traveljournal.presentation.JournalViewmodel
 
+@RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddJournalScreen(
@@ -58,7 +45,7 @@ fun AddJournalScreen(
     val context = LocalContext.current
 
 
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageUri by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     val recorder = remember { AudioRecorder(context) }
     var isRecording by remember { mutableStateOf(false) }
@@ -95,22 +82,27 @@ fun AddJournalScreen(
     val isEditMode = journalId != null
 
 
-    var editImageUri by remember { mutableStateOf<Uri?>(null) }
     val imagePicker =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenMultipleDocuments()
+        ) { uris ->
+            if (uris.isNotEmpty()) {
 
-            uri?.let {
-                context.contentResolver.takePersistableUriPermission(
-                    it,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            }
-            if (isEditMode) {
-                editImageUri = uri
-            } else {
-                imageUri = uri
+
+                uris.forEach { uri ->
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
+
+                imageUri = imageUri + uris
             }
         }
+
+    LaunchedEffect(imageUri) {
+        Log.d("AddJournal", "Selected images: ${imageUri.size}")
+    }
 
     LaunchedEffect(journalId) {
         journalId?.let {
@@ -130,7 +122,8 @@ fun AddJournalScreen(
         }
     ) { innerPadding ->
 
-        Box(Modifier.fillMaxSize()
+        Box(Modifier
+            .fillMaxSize()
             .padding(innerPadding)) {
 
             if (!isEditMode) {
@@ -143,7 +136,7 @@ fun AddJournalScreen(
                     description = description,
                     onDescriptionChange = { description = it },
                     imageUri = imageUri,
-                    onPickImage = { imagePicker.launch("image/*") },
+                    onPickImage = { imagePicker.launch(arrayOf("image/*")) },
                     isRecording = isRecording,
                     onRecordClick = {
                         if (!isRecording) {
@@ -158,15 +151,14 @@ fun AddJournalScreen(
                     longitude = longitude,
                     onLocationClick = {
                         locationPermissionLauncher.launch(
-                            android.Manifest.permission.ACCESS_FINE_LOCATION
+                            Manifest.permission.ACCESS_FINE_LOCATION
                         )
                     },
                     onSave = {
                         viewmodel.insertJournal(
                             title = title,
                             description = description,
-                            journalId = null,
-                            imageUri = imageUri?.toString(),
+                            imageUri = imageUri.map { it.toString() },
                             audioUri = audioPath,
                             latitude = latitude,
                             longitude = longitude
@@ -223,9 +215,11 @@ fun AddJournalScreen(
 
 
                         LaunchedEffect(journal) {
-                            if (editImageUri == null) {
-                                editImageUri = journal.imageUri?.let { Uri.parse(it) }
-                            }
+                            imageUri = journal.imageUri.map { Uri.parse(it) }
+                            audioPath = journal.audioUri
+                            latitude = journal.latitude
+                            longitude = journal.longitude
+
                         }
 
 
@@ -236,8 +230,8 @@ fun AddJournalScreen(
                             onTitleChange = { title = it },
                             description = description,
                             onDescriptionChange = { description = it },
-                            imageUri = editImageUri,
-                            onPickImage = { imagePicker.launch("image/*") },
+                            imageUri = imageUri,
+                            onPickImage = { imagePicker.launch(arrayOf("image/*")) },
                             isRecording = isRecording,
                             onRecordClick = {
                                 if (!isRecording) {
@@ -258,8 +252,7 @@ fun AddJournalScreen(
                                 viewmodel.insertJournal(
                                     title = title,
                                     description = description,
-                                    journalId = journal.id, // 🔥 UPDATE
-                                    imageUri = editImageUri?.toString(),
+                                    imageUri = imageUri.map { it.toString() },
                                     audioUri = editAudioPath,
                                     latitude = latitude,
                                     longitude = longitude

@@ -18,7 +18,6 @@ class JournalViewmodel(
     val state: StateFlow<ResultState<List<JournalEntity>>> = _state.asStateFlow()
 
     private val _selectedJournal = MutableStateFlow<ResultState<JournalEntity>>(ResultState.Loading)
-
     val selectedJournal: StateFlow<ResultState<JournalEntity>> = _selectedJournal.asStateFlow()
 
     private var editingJournalId: Int? = null
@@ -46,8 +45,7 @@ class JournalViewmodel(
     fun insertJournal(
         title: String,
         description: String,
-        journalId: Int? = null,
-        imageUri: String?,
+        imageUri: List<String>,
         audioUri: String?,
         latitude: Double?,
         longitude: Double?
@@ -55,22 +53,10 @@ class JournalViewmodel(
         viewModelScope.launch {
             val finalId = editingJournalId ?: 0
 
-            val journal = JournalEntity(
-                id = finalId,
-                title = title,
-                content = description,
-                imageUri = imageUri,
-                audioUri = audioUri,
-                latitude = latitude,
-                longitude = longitude,
-                createdAt = System.currentTimeMillis()
-            )
-
-
             when (
                 val result = repository.insertJournal(
                     JournalEntity(
-                        id = journalId ?: 0,
+                        id = finalId ,
                         title = title,
                         content = description,
                         imageUri = imageUri,
@@ -80,12 +66,14 @@ class JournalViewmodel(
                         createdAt = System.currentTimeMillis()
                     )
                 )
+
             ) {
 
 
                 is ResultState.Error -> {
                     _state.value = ResultState.Error(result.message)
                 }
+
 
                 else -> {
                     editingJournalId = null
@@ -115,7 +103,5 @@ class JournalViewmodel(
             }
         }
     }
-
-
 
 }

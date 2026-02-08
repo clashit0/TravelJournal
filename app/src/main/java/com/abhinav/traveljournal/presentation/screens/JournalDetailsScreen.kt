@@ -17,11 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.abhinav.traveljournal.presentation.JournalViewmodel
@@ -67,18 +66,27 @@ fun JournalDetailScreen(
 
 
 
-                journal.imageUri?.let {
-                    Image(
-                        painter = rememberAsyncImagePainter(Uri.parse(it)),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxWidth()
-                            .height(240.dp)
-                    )
+                if (journal.imageUri.isNotEmpty()) {
+                    journal.imageUri.forEach { uriString ->
+                        Image(
+                            painter = rememberAsyncImagePainter(Uri.parse(uriString)),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                        )
+                    }
                 }
 
+
                 journal.audioUri?.let { path->
-                    val context = LocalContext.current
                     val player = remember { MediaPlayer() }
+
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            player.release()
+                        }
+                    }
 
                     Button(onClick = {
                         player.reset()
