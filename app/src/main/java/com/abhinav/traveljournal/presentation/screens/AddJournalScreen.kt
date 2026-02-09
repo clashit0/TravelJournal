@@ -33,6 +33,7 @@ import com.abhinav.traveljournal.common.LocationProvider
 import com.abhinav.traveljournal.common.ResultState
 import com.abhinav.traveljournal.data.local.JournalEntity
 import com.abhinav.traveljournal.presentation.JournalViewmodel
+import androidx.core.net.toUri
 
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,6 +138,9 @@ fun AddJournalScreen(
                     onDescriptionChange = { description = it },
                     imageUri = imageUri,
                     onPickImage = { imagePicker.launch(arrayOf("image/*")) },
+                    onRemoveImage = { uri ->
+                        imageUri = imageUri - uri
+                    },
                     isRecording = isRecording,
                     onRecordClick = {
                         if (!isRecording) {
@@ -215,7 +219,7 @@ fun AddJournalScreen(
 
 
                         LaunchedEffect(journal) {
-                            imageUri = journal.imageUri.map { Uri.parse(it) }
+                            imageUri = journal.imageUri.map { it.toUri() }
                             audioPath = journal.audioUri
                             latitude = journal.latitude
                             longitude = journal.longitude
@@ -232,6 +236,9 @@ fun AddJournalScreen(
                             onDescriptionChange = { description = it },
                             imageUri = imageUri,
                             onPickImage = { imagePicker.launch(arrayOf("image/*")) },
+                            onRemoveImage = { uri ->
+                                imageUri = imageUri - uri
+                            },
                             isRecording = isRecording,
                             onRecordClick = {
                                 if (!isRecording) {

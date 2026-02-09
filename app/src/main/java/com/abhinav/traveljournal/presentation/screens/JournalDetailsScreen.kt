@@ -1,7 +1,6 @@
 package com.abhinav.traveljournal.presentation.screens
 
-import android.media.MediaPlayer
-import android.net.Uri
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,8 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberAsyncImagePainter
+import com.abhinav.traveljournal.common.AudioPlayer
 import com.abhinav.traveljournal.presentation.JournalViewmodel
 import java.util.Date
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +45,7 @@ fun JournalDetailScreen(
 ){
     val journal = viewmodel.getJournalById(journalId)
     var selectedImage by remember { mutableStateOf<String?>(null) }
+    var showPlayer by remember { mutableStateOf(false) }
 
 
     Scaffold(
@@ -85,7 +86,7 @@ fun JournalDetailScreen(
                     ) {
                         items(journal.imageUri) { uriString ->
                             Image(
-                                painter = rememberAsyncImagePainter(Uri.parse(uriString)),
+                                painter = rememberAsyncImagePainter(uriString.toUri()),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .height(180.dp)
@@ -102,22 +103,19 @@ fun JournalDetailScreen(
 
 
                 journal.audioUri?.let { path->
-                    val player = remember { MediaPlayer() }
+                    if (showPlayer){
+                        AudioPlayer(audioPath = path)
+                    }
 
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            player.release()
+
+                    if(!showPlayer){
+                        Button(onClick = {
+                            showPlayer = true
+                        }) {
+                            Text("Play Audio")
                         }
                     }
 
-                    Button(onClick = {
-                        player.reset()
-                        player.setDataSource(path)
-                        player.prepare()
-                        player.start()
-                    }) {
-                        Text("Play Audio")
-                    }
                 }
 
                 if (journal.latitude != null && journal.longitude != null){
@@ -144,7 +142,7 @@ fun JournalDetailScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = rememberAsyncImagePainter(Uri.parse(uriString)),
+                        painter = rememberAsyncImagePainter(uriString.toUri()),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
