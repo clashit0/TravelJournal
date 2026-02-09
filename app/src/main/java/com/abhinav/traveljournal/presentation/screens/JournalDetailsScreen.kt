@@ -1,6 +1,7 @@
 package com.abhinav.traveljournal.presentation.screens
 
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,13 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
 import com.abhinav.traveljournal.common.AudioPlayer
 import com.abhinav.traveljournal.presentation.JournalViewmodel
 import java.util.Date
-import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +48,9 @@ fun JournalDetailScreen(
     val journal = viewmodel.getJournalById(journalId)
     var selectedImage by remember { mutableStateOf<String?>(null) }
     var showPlayer by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+
 
 
     Scaffold(
@@ -119,10 +124,16 @@ fun JournalDetailScreen(
                 }
 
                 if (journal.latitude != null && journal.longitude != null){
-                    Text(
-                        text = "Location: ${journal.latitude}, ${journal.longitude}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    val lat = journal.latitude
+                    val lon = journal.longitude
+                    val locationUri = "geo:$lat,$lon?q=$lat,$lon".toUri()
+                    val intent = Intent(Intent.ACTION_VIEW, locationUri)
+                    intent.setPackage("com.google.android.apps.maps")
+                    Button(onClick = {
+                        context.startActivity(intent)
+                    }) {
+                        Text("Open location")
+                    }
                 }
 
                 Text(
